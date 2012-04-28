@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="eBzGyd" name="JuceFontLegacy" projectType="guiapp" version="1.0.0"
+              bundleIdentifier="com.yourcompany.JuceFontLegacy" jucerVersion="3.0.0">
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX" objCExtraSuffix="xEIJjI" juceFolder="..\juce">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="JuceFontLegacy"
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="2" targetName="JuceFontLegacy"
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+      </CONFIGURATIONS>
+    </XCODE_MAC>
+    <VS2010 targetFolder="Builds/VisualStudio2010" libraryType="1" juceFolder="..\juce">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="JuceFontLegacy"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="JuceFontLegacy"/>
+      </CONFIGURATIONS>
+    </VS2010>
+    <XCODE_IPHONE targetFolder="Builds/iOS" objCExtraSuffix="LYWMac" juceFolder="..\juce">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="JuceFontLegacy"
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="2" targetName="JuceFontLegacy"
+                       osxSDK="default" osxCompatibility="default" osxArchitecture="default"/>
+      </CONFIGURATIONS>
+    </XCODE_IPHONE>
+  </EXPORTFORMATS>
+  <MAINGROUP id="jVT6mh" name="JuceFontLegacy">
+    <GROUP id="{34D4DB1A-23C0-302A-59A1-BEC34E59D9CC}" name="Source">
+      <FILE id="VY6hN2" name="MainWindow.cpp" compile="1" resource="0" file="Source/MainWindow.cpp"/>
+      <FILE id="uoUjyO" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
+      <FILE id="h3f2Xg" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_gui_audio" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>

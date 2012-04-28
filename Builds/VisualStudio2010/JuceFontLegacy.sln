@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2551286E-B00C-1652-313D-B8A70455BADD}") = "JuceFontLegacy", "JuceFontLegacy.vcxproj", "{7CA3FA1B-5B36-FE48-B464-278FB8134BD9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7CA3FA1B-5B36-FE48-B464-278FB8134BD9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7CA3FA1B-5B36-FE48-B464-278FB8134BD9}.Debug|Win32.Build.0 = Debug|Win32
+		{7CA3FA1B-5B36-FE48-B464-278FB8134BD9}.Release|Win32.ActiveCfg = Release|Win32
+		{7CA3FA1B-5B36-FE48-B464-278FB8134BD9}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
