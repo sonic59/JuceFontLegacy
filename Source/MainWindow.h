@@ -12,6 +12,7 @@
 #define __MAINWINDOW_H_E5115CEA__
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "WindowComponent.h"
 
 
 //==============================================================================
@@ -33,6 +34,7 @@ public:
     */
 
 private:
+	ScopedPointer<WindowComponent> windowComp;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainAppWindow)
 };
