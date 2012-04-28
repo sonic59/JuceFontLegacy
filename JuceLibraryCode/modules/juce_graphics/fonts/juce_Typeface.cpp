@@ -23,8 +23,8 @@
   ==============================================================================
 */
 
-Typeface::Typeface (const String& name_) noexcept
-    : name (name_)
+Typeface::Typeface (const String& name_, const String& style_) noexcept
+    : name (name_), style (style_)
 {
 }
 
@@ -34,7 +34,7 @@ Typeface::~Typeface()
 
 Typeface::Ptr Typeface::getFallbackTypeface()
 {
-    const Font fallbackFont (Font::getFallbackFontName(), 10, 0);
+    const Font fallbackFont (Font::getFallbackFontName(), Font::getFallbackFontStyle(), 10.0f);
     return fallbackFont.getTypeface();
 }
 

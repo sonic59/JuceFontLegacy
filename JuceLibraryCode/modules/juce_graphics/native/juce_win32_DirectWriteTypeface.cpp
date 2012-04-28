@@ -86,7 +86,7 @@ class WindowsDirectWriteTypeface  : public Typeface
 {
 public:
     WindowsDirectWriteTypeface (const Font& font, IDWriteFontCollection* fontCollection)
-        : Typeface (font.getTypefaceName()),
+        : Typeface (font.getTypefaceName(), font.getTypefaceStyle()),
           ascent (0.0f)
     {
         jassert (fontCollection != nullptr);
@@ -102,12 +102,33 @@ public:
         ComSmartPtr<IDWriteFontFamily> dwFontFamily;
         hr = fontCollection->GetFontFamily (fontIndex, dwFontFamily.resetAndGetPointerAddress());
 
-        // Get a specific font in the font family using certain weight and style flags
+        // Get a specific font in the font family using typeface style
         ComSmartPtr<IDWriteFont> dwFont;
-        DWRITE_FONT_WEIGHT dwWeight = font.isBold() ? DWRITE_FONT_WEIGHT_BOLD  : DWRITE_FONT_WEIGHT_NORMAL;
-        DWRITE_FONT_STYLE dwStyle = font.isItalic() ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL;
+        uint32 fontFacesCount = 0;
+        fontFacesCount = dwFontFamily->GetFontCount();
 
-        hr = dwFontFamily->GetFirstMatchingFont (dwWeight, DWRITE_FONT_STRETCH_NORMAL, dwStyle, dwFont.resetAndGetPointerAddress());
+        for (uint32 i = 0; i < fontFacesCount; ++i)
+        {
+                hr = dwFontFamily->GetFont (i, dwFont.resetAndGetPointerAddress());
+
+                ComSmartPtr<IDWriteLocalizedStrings> dwFaceNames;
+                hr = dwFont->GetFaceNames (dwFaceNames.resetAndGetPointerAddress());
+                jassert (dwFaceNames != nullptr);
+
+                uint32 index = 0;
+                BOOL exists = false;
+                hr = dwFaceNames->FindLocaleName (L"en-us", &index, &exists);
+                if (! exists)
+                    index = 0;
+
+                uint32 length = 0;
+                hr = dwFaceNames->GetStringLength (index, &length);
+
+                HeapBlock <wchar_t> styleName (length + 1);
+                hr = dwFaceNames->GetString (index, styleName, length + 1);
+
+                if (font.getTypefaceStyle() == String (styleName)) break;
+        }
         hr = dwFont->CreateFontFace (dwFontFace.resetAndGetPointerAddress());
 
         DWRITE_FONT_METRICS dwFontMetrics;

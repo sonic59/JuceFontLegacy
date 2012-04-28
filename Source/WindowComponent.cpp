@@ -113,6 +113,8 @@ WindowComponent::WindowComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
+    cmbFamily->addItemList(Font::findAllTypefaceNames(), 1);
+    cmbFamily->setText("Verdana");
     //[/Constructor]
 }
 
@@ -171,11 +173,21 @@ void WindowComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     if (comboBoxThatHasChanged == cmbFamily)
     {
         //[UserComboBoxCode_cmbFamily] -- add your combo box handling code here..
+        cmbStyle->clear();
+        cmbStyle->addItemList(Font::findAllTypefaceStyles(cmbFamily->getText()), 1);
+        cmbStyle->setSelectedItemIndex(0);
+        font.setTypefaceName(cmbFamily->getText());
+        font.setTypefaceStyle(cmbStyle->getText());
+        lblSample->setFont(font);
+        txtSample->applyFontToAllText(font);
         //[/UserComboBoxCode_cmbFamily]
     }
     else if (comboBoxThatHasChanged == cmbStyle)
     {
         //[UserComboBoxCode_cmbStyle] -- add your combo box handling code here..
+        font.setTypefaceStyle(cmbStyle->getText());
+        lblSample->setFont(font);
+        txtSample->applyFontToAllText(font);
         //[/UserComboBoxCode_cmbStyle]
     }
 

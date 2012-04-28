@@ -63,8 +63,8 @@ public:
     /** Resets this typeface, deleting all its glyphs and settings. */
     void clear();
 
-    /** Sets the vital statistics for the typeface.
-        @param name     the typeface's name
+    /** Sets the vital statistics for the typeface using legacy interface.
+        @param name     the typeface's font family
         @param ascent   the ascent - this is normalised to a height of 1.0 and this is
                         the value that will be returned by Typeface::getAscent(). The
                         descent is assumed to be (1.0 - ascent)
@@ -75,6 +75,18 @@ public:
     */
     void setCharacteristics (const String& name, float ascent,
                              bool isBold, bool isItalic,
+                             juce_wchar defaultCharacter) noexcept;
+
+    /** Sets the vital statistics for the typeface.
+        @param name     the typeface's font family
+        @param style    the typeface's font style
+        @param ascent   the ascent - this is normalised to a height of 1.0 and this is
+                        the value that will be returned by Typeface::getAscent(). The
+                        descent is assumed to be (1.0 - ascent)
+        @param defaultCharacter     the character to be used as a replacement if there's
+                        no glyph available for the character that's being drawn
+    */
+    void setCharacteristics (const String& name, const String& style, float ascent,
                              juce_wchar defaultCharacter) noexcept;
 
     /** Adds a glyph to the typeface.
@@ -117,7 +129,6 @@ protected:
     //==============================================================================
     juce_wchar defaultCharacter;
     float ascent;
-    bool isBold, isItalic;
 
     //==============================================================================
     /** If a subclass overrides this, it can load glyphs into the font on-demand.
