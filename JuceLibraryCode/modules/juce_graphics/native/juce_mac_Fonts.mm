@@ -1021,8 +1021,30 @@ StringArray Font::findAllTypefaceNames()
       
 StringArray Font::findAllTypefaceStyles(const String& family)
 {
-    StringArray styles;
-    return styles;
+    StringArray results;
+    
+    JUCE_AUTORELEASEPOOL
+    
+#if JUCE_IOS
+    NSArray* styles = [UIFont fontNamesForFamilyName:juceStringToNS (family)];
+#else
+    NSArray* styles = [[NSFontManager sharedFontManager] availableMembersOfFontFamily:juceStringToNS (family)];
+#endif
+    
+    for (unsigned int i = 0; i < [styles count]; ++i)
+    {
+#if JUCE_IOS
+        // Fonts are returned in the form of "Arial-BoldMT"
+        results.add (nsStringToJuce ((NSString*) [styles objectAtIndex: i]));
+#else
+        NSArray* style = [styles objectAtIndex: i];
+        // Fonts at index 1 are returned in the form of "Bold"
+        results.add (nsStringToJuce ((NSString*) [style objectAtIndex: 1]));
+#endif
+        
+    }
+    
+    return results;
 }
 
 struct DefaultFontNames
