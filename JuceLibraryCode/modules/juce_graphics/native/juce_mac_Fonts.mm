@@ -1146,9 +1146,13 @@ Typeface::Ptr Font::getDefaultTypefaceForFont (const Font& font)
     if (faceName == Font::getDefaultSansSerifFontName())       faceName = defaultNames.defaultSans;
     else if (faceName == Font::getDefaultSerifFontName())      faceName = defaultNames.defaultSerif;
     else if (faceName == Font::getDefaultMonospacedFontName()) faceName = defaultNames.defaultFixed;
-    // TODO: Handle Cocoa Touch Font Styles
     if (style == Font::getDefaultStyle())                      style  = "Regular";
-
+    // Fonts style names on Cocoa Touch are unusual like "Arial-BoldMT"
+    // No font will be found for the style of "Regular" so we must modfiy the style 
+    #if JUCE_IOS && ! JUCE_CORETEXT_AVAILABLE
+    if (style  == "Regular")                                   style  = family;
+    #endif
+    
     Font f (font);
     f.setTypefaceName (faceName);
     f.setTypefaceStyle (style);
