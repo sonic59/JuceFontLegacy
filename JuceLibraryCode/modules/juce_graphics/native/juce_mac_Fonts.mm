@@ -528,6 +528,65 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OSXTypeface);
 };
 
+StringArray Font::findAllTypefaceNames()
+{
+    StringArray names;
+    
+    CTFontCollectionRef fontCollectionRef = CTFontCollectionCreateFromAvailableFonts(nullptr);
+	CFArrayRef fontDescriptorArray = CTFontCollectionCreateMatchingFontDescriptors(fontCollectionRef);
+    CFRelease(fontCollectionRef);
+    for (CFIndex i = 0; i < CFArrayGetCount (fontDescriptorArray); ++i)
+    {
+        CTFontDescriptorRef ctFontDescriptorRef = (CTFontDescriptorRef) CFArrayGetValueAtIndex (fontDescriptorArray, i);
+        CFStringRef cfsFontFamily = (CFStringRef) CTFontDescriptorCopyAttribute(ctFontDescriptorRef, kCTFontFamilyNameAttribute);
+        // Every font face is returned, we need to prevent duplicate font families from being added to the list
+        if (names.contains(String::fromCFString (cfsFontFamily)) == false) names.add (String::fromCFString (cfsFontFamily));
+		CFRelease(cfsFontFamily);
+    }	
+	CFRelease(fontDescriptorArray);
+    
+    names.sort (true);
+    return names;
+}
+
+StringArray Font::findAllTypefaceStyles(const String& family)
+{
+    StringArray results;
+    // Check if we are dealing with a default family name
+    if (family.startsWithChar('<'))
+    {
+        // We must get the real family name to find the correct styles
+        const Font f(family, "Regular", 15.0f);
+        Typeface::Ptr typeface = Font::getDefaultTypefaceForFont (f);
+        const String actualFamily = typeface->getName();
+        return findAllTypefaceStyles(actualFamily);
+    }
+    CFStringRef cfsFontFamily = family.toCFString();
+    CFStringRef keys[] = { kCTFontFamilyNameAttribute };
+    CFTypeRef values[] = { cfsFontFamily };
+    CFDictionaryRef fontDescAttributes = CFDictionaryCreate (nullptr, (const void**) &keys, (const void**) &values, numElementsInArray (keys), &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFRelease (cfsFontFamily);
+    CTFontDescriptorRef ctFontDescRef = CTFontDescriptorCreateWithAttributes (fontDescAttributes);
+    CFRelease (fontDescAttributes);
+    CFArrayRef fontFamilyArray = CFArrayCreate(kCFAllocatorDefault, (const void**) &ctFontDescRef, 1, &kCFTypeArrayCallBacks);
+    CFRelease (ctFontDescRef);
+    CTFontCollectionRef fontCollectionRef = CTFontCollectionCreateWithFontDescriptors(fontFamilyArray, nullptr);
+    CFRelease(fontFamilyArray);
+	CFArrayRef fontDescriptorArray = CTFontCollectionCreateMatchingFontDescriptors(fontCollectionRef);
+    CFRelease(fontCollectionRef);
+    if (fontDescriptorArray == nullptr) return results;
+    for (CFIndex i = 0; i < CFArrayGetCount (fontDescriptorArray); ++i)
+    {
+        CTFontDescriptorRef ctFontDescriptorRef = (CTFontDescriptorRef) CFArrayGetValueAtIndex (fontDescriptorArray, i);
+        CFStringRef cfsFontStyle = (CFStringRef) CTFontDescriptorCopyAttribute(ctFontDescriptorRef, kCTFontStyleNameAttribute);
+        results.add (String::fromCFString (cfsFontStyle));
+		CFRelease(cfsFontStyle);
+    }	
+	CFRelease(fontDescriptorArray);
+    
+    return results;
+}
+
 #else
 
 //==============================================================================
@@ -992,59 +1051,59 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OSXTypeface);
 };
 
+StringArray Font::findAllTypefaceNames()
+{
+  StringArray names;
+  
+  JUCE_AUTORELEASEPOOL
+  
+#if JUCE_IOS
+  NSArray* fonts = [UIFont familyNames];
+#else
+  NSArray* fonts = [[NSFontManager sharedFontManager] availableFontFamilies];
+#endif
+  
+  for (unsigned int i = 0; i < [fonts count]; ++i)
+      names.add (nsStringToJuce ((NSString*) [fonts objectAtIndex: i]));
+  
+  names.sort (true);
+  return names;
+}
+
+StringArray Font::findAllTypefaceStyles(const String& family)
+{
+  StringArray results;
+  
+  JUCE_AUTORELEASEPOOL
+  
+#if JUCE_IOS
+  NSArray* styles = [UIFont fontNamesForFamilyName:juceStringToNS (family)];
+#else
+  NSArray* styles = [[NSFontManager sharedFontManager] availableMembersOfFontFamily:juceStringToNS (family)];
+#endif
+  
+  for (unsigned int i = 0; i < [styles count]; ++i)
+  {
+#if JUCE_IOS
+      // Fonts are returned in the form of "Arial-BoldMT"
+      results.add (nsStringToJuce ((NSString*) [styles objectAtIndex: i]));
+#else
+      NSArray* style = [styles objectAtIndex: i];
+      // Fonts at index 1 are returned in the form of "Bold"
+      results.add (nsStringToJuce ((NSString*) [style objectAtIndex: 1]));
+#endif
+      
+  }
+  
+  return results;
+}
+
 #endif
 
 //==============================================================================
 Typeface::Ptr Typeface::createSystemTypefaceFor (const Font& font)
 {
     return new OSXTypeface (font);
-}
-
-StringArray Font::findAllTypefaceNames()
-{
-    StringArray names;
-
-    JUCE_AUTORELEASEPOOL
-
-   #if JUCE_IOS
-    NSArray* fonts = [UIFont familyNames];
-   #else
-    NSArray* fonts = [[NSFontManager sharedFontManager] availableFontFamilies];
-   #endif
-
-    for (unsigned int i = 0; i < [fonts count]; ++i)
-        names.add (nsStringToJuce ((NSString*) [fonts objectAtIndex: i]));
-
-    names.sort (true);
-    return names;
-}
-      
-StringArray Font::findAllTypefaceStyles(const String& family)
-{
-    StringArray results;
-    
-    JUCE_AUTORELEASEPOOL
-    
-#if JUCE_IOS
-    NSArray* styles = [UIFont fontNamesForFamilyName:juceStringToNS (family)];
-#else
-    NSArray* styles = [[NSFontManager sharedFontManager] availableMembersOfFontFamily:juceStringToNS (family)];
-#endif
-    
-    for (unsigned int i = 0; i < [styles count]; ++i)
-    {
-#if JUCE_IOS
-        // Fonts are returned in the form of "Arial-BoldMT"
-        results.add (nsStringToJuce ((NSString*) [styles objectAtIndex: i]));
-#else
-        NSArray* style = [styles objectAtIndex: i];
-        // Fonts at index 1 are returned in the form of "Bold"
-        results.add (nsStringToJuce ((NSString*) [style objectAtIndex: 1]));
-#endif
-        
-    }
-    
-    return results;
 }
 
 struct DefaultFontNames
@@ -1076,6 +1135,7 @@ Typeface::Ptr Font::getDefaultTypefaceForFont (const Font& font)
     if (faceName == Font::getDefaultSansSerifFontName())       faceName = defaultNames.defaultSans;
     else if (faceName == Font::getDefaultSerifFontName())      faceName = defaultNames.defaultSerif;
     else if (faceName == Font::getDefaultMonospacedFontName()) faceName = defaultNames.defaultFixed;
+    // TODO: Handle Cocoa Touch Font Styles
     if (style == Font::getDefaultStyle())                      style  = "Regular";
 
     Font f (font);
