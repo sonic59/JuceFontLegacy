@@ -532,24 +532,24 @@ StringArray Font::findAllTypefaceNames()
 {
     StringArray names;
     
-    CTFontCollectionRef fontCollectionRef = CTFontCollectionCreateFromAvailableFonts(nullptr);
-	CFArrayRef fontDescriptorArray = CTFontCollectionCreateMatchingFontDescriptors(fontCollectionRef);
-    CFRelease(fontCollectionRef);
+    CTFontCollectionRef fontCollectionRef = CTFontCollectionCreateFromAvailableFonts (nullptr);
+	CFArrayRef fontDescriptorArray = CTFontCollectionCreateMatchingFontDescriptors (fontCollectionRef);
+    CFRelease (fontCollectionRef);
     for (CFIndex i = 0; i < CFArrayGetCount (fontDescriptorArray); ++i)
     {
         CTFontDescriptorRef ctFontDescriptorRef = (CTFontDescriptorRef) CFArrayGetValueAtIndex (fontDescriptorArray, i);
-        CFStringRef cfsFontFamily = (CFStringRef) CTFontDescriptorCopyAttribute(ctFontDescriptorRef, kCTFontFamilyNameAttribute);
+        CFStringRef cfsFontFamily = (CFStringRef) CTFontDescriptorCopyAttribute (ctFontDescriptorRef, kCTFontFamilyNameAttribute);
         // Every font face is returned, we need to prevent duplicate font families from being added to the list
         if (names.contains(String::fromCFString (cfsFontFamily)) == false) names.add (String::fromCFString (cfsFontFamily));
-		CFRelease(cfsFontFamily);
+		CFRelease (cfsFontFamily);
     }	
-	CFRelease(fontDescriptorArray);
+	CFRelease (fontDescriptorArray);
     
     names.sort (true);
     return names;
 }
 
-StringArray Font::findAllTypefaceStyles(const String& family)
+StringArray Font::findAllTypefaceStyles (const String& family)
 {
     StringArray results;
     // Check if we are dealing with a default family name
@@ -570,19 +570,19 @@ StringArray Font::findAllTypefaceStyles(const String& family)
     CFRelease (fontDescAttributes);
     CFArrayRef fontFamilyArray = CFArrayCreate(kCFAllocatorDefault, (const void**) &ctFontDescRef, 1, &kCFTypeArrayCallBacks);
     CFRelease (ctFontDescRef);
-    CTFontCollectionRef fontCollectionRef = CTFontCollectionCreateWithFontDescriptors(fontFamilyArray, nullptr);
-    CFRelease(fontFamilyArray);
-	CFArrayRef fontDescriptorArray = CTFontCollectionCreateMatchingFontDescriptors(fontCollectionRef);
+    CTFontCollectionRef fontCollectionRef = CTFontCollectionCreateWithFontDescriptors (fontFamilyArray, nullptr);
+    CFRelease (fontFamilyArray);
+	CFArrayRef fontDescriptorArray = CTFontCollectionCreateMatchingFontDescriptors (fontCollectionRef);
     CFRelease(fontCollectionRef);
     if (fontDescriptorArray == nullptr) return results;
     for (CFIndex i = 0; i < CFArrayGetCount (fontDescriptorArray); ++i)
     {
         CTFontDescriptorRef ctFontDescriptorRef = (CTFontDescriptorRef) CFArrayGetValueAtIndex (fontDescriptorArray, i);
-        CFStringRef cfsFontStyle = (CFStringRef) CTFontDescriptorCopyAttribute(ctFontDescriptorRef, kCTFontStyleNameAttribute);
+        CFStringRef cfsFontStyle = (CFStringRef) CTFontDescriptorCopyAttribute (ctFontDescriptorRef, kCTFontStyleNameAttribute);
         results.add (String::fromCFString (cfsFontStyle));
-		CFRelease(cfsFontStyle);
+		CFRelease (cfsFontStyle);
     }	
-	CFRelease(fontDescriptorArray);
+	CFRelease (fontDescriptorArray);
     
     return results;
 }
@@ -1070,7 +1070,7 @@ StringArray Font::findAllTypefaceNames()
   return names;
 }
 
-StringArray Font::findAllTypefaceStyles(const String& family)
+StringArray Font::findAllTypefaceStyles (const String& family)
 {
   StringArray results;
   
