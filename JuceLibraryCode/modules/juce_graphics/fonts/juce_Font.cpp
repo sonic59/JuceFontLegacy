@@ -465,28 +465,52 @@ void Font::setStyleFlags (const int newFlags)
                 // Set the style to the first style incase we don't find the Regular font
                 font->typefaceStyle = styles[0];
                 for (int i = 0; i < styles.size(); ++i)
-                    if (styles[i] == "Regular") font->typefaceStyle = styles[i];
+                {
+                    if (styles[i] == "Regular")
+                    {
+                        font->typefaceStyle = styles[i];
+                        break;
+                    }
+                }
             }
             if (((newFlags & bold) == bold) && ((newFlags & italic) != italic))
             {
                 // We are looking for a Bold font style
                 font->typefaceStyle = styles[0];
                 for (int i = 0; i < styles.size(); ++i)
-                    if (styles[i] == "Bold") font->typefaceStyle = styles[i];
+                {
+                    if (styles[i] == "Bold")
+                    {
+                        font->typefaceStyle = styles[i];
+                        break;
+                    }
+                }
             }
             if (((newFlags & bold) != bold) && ((newFlags & italic) == italic))
             {
                 // We are looking for a Italic font style
                 font->typefaceStyle = styles[0];
                 for (int i = 0; i < styles.size(); ++i)
-                    if (styles[i] == "Italic" || styles[i] == "Oblique") font->typefaceStyle = styles[i];
+                {
+                    if (styles[i] == "Italic" || styles[i] == "Oblique")
+                    {
+                        font->typefaceStyle = styles[i];
+                        break;
+                    }
+                }
             }
             if ((newFlags & (bold | italic)) == (bold | italic))
             {
                 // We are looking for a Bold Italic font style
                 font->typefaceStyle = styles[0];
                 for (int i = 0; i < styles.size(); ++i)
-                    if (styles[i] == "Bold Italic" || styles[i] == "Bold Oblique") font->typefaceStyle = styles[i];
+                {
+                    if (styles[i] == "Bold Italic" || styles[i] == "Bold Oblique")
+                    {
+                        font->typefaceStyle = styles[i];
+                        break;
+                    }
+                }
             }
         }
         font->typeface = nullptr;
