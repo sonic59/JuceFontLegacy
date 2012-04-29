@@ -125,6 +125,15 @@ StringArray Font::findAllTypefaceNames()
 
 StringArray Font::findAllTypefaceStyles(const String& family)
 {
+    // Check if we are dealing with a default family name
+    if (family.startsWithChar('<'))
+    {
+        // We must get the real family name to find the correct styles
+        const Font f(family, "Regular", 15.0f);
+        Typeface::Ptr typeface = Font::getDefaultTypefaceForFont (f);
+        const String actualFamily = typeface->getName();
+        return findAllTypefaceStyles(actualFamily);
+    }
     StringArray results;
 
     #if JUCE_USE_DIRECTWRITE
