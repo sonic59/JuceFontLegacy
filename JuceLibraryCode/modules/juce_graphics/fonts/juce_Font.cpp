@@ -451,68 +451,10 @@ void Font::setStyleFlags (const int newFlags)
     {
         dupeInternalIfShared();
         if ((newFlags & underlined) == underlined) font->underline = true;
-        StringArray styles = Font::findAllTypefaceStyles(font->typefaceName);
-        // Font Families may have 1 or more styles.
-        // All main styles, Regular, Bold or Italic, may not be present.
-        // Check if there is only 1 font style, if so we will just use that style
-        if (styles.size() == 1) font->typefaceStyle = styles[0];
-        else
-        {
-            // There is more than 1 font style
-            if (newFlags == plain || newFlags == underlined)
-            {
-                // We are looking for a Regular font style
-                // Set the style to the first style incase we don't find the Regular font
-                font->typefaceStyle = styles[0];
-                for (int i = 0; i < styles.size(); ++i)
-                {
-                    if (styles[i] == "Regular")
-                    {
-                        font->typefaceStyle = styles[i];
-                        break;
-                    }
-                }
-            }
-            if (((newFlags & bold) == bold) && ((newFlags & italic) != italic))
-            {
-                // We are looking for a Bold font style
-                font->typefaceStyle = styles[0];
-                for (int i = 0; i < styles.size(); ++i)
-                {
-                    if (styles[i] == "Bold")
-                    {
-                        font->typefaceStyle = styles[i];
-                        break;
-                    }
-                }
-            }
-            if (((newFlags & bold) != bold) && ((newFlags & italic) == italic))
-            {
-                // We are looking for a Italic font style
-                font->typefaceStyle = styles[0];
-                for (int i = 0; i < styles.size(); ++i)
-                {
-                    if (styles[i] == "Italic" || styles[i] == "Oblique")
-                    {
-                        font->typefaceStyle = styles[i];
-                        break;
-                    }
-                }
-            }
-            if ((newFlags & (bold | italic)) == (bold | italic))
-            {
-                // We are looking for a Bold Italic font style
-                font->typefaceStyle = styles[0];
-                for (int i = 0; i < styles.size(); ++i)
-                {
-                    if (styles[i] == "Bold Italic" || styles[i] == "Bold Oblique")
-                    {
-                        font->typefaceStyle = styles[i];
-                        break;
-                    }
-                }
-            }
-        }
+        if (newFlags == plain || newFlags == underlined) font->typefaceStyle = "Regular";
+        if (((newFlags & bold) == bold) && ((newFlags & italic) != italic)) font->typefaceStyle = "Bold";
+        if (((newFlags & bold) != bold) && ((newFlags & italic) == italic)) font->typefaceStyle = "Italic";
+        if ((newFlags & (bold | italic)) == (bold | italic)) font->typefaceStyle = "Bold Italic";
         font->typeface = nullptr;
         font->ascent = 0;
     }
