@@ -633,44 +633,10 @@ public:
         JUCE_AUTORELEASEPOOL
         renderingTransform = CGAffineTransformIdentity;
 
-        bool needsItalicTransform = false;
-
 #if JUCE_IOS
-        NSString* fontName = juceStringToNS (font.getTypefaceName());
-
-        if (font.isItalic() || font.isBold())
-        {
-            NSArray* familyFonts = [UIFont fontNamesForFamilyName: juceStringToNS (font.getTypefaceName())];
-
-            for (NSString* i in familyFonts)
-            {
-                const String fn (nsStringToJuce (i));
-                const String afterDash (fn.fromFirstOccurrenceOf ("-", false, false));
-
-                const bool probablyBold = afterDash.containsIgnoreCase ("bold") || fn.endsWithIgnoreCase ("bold");
-                const bool probablyItalic = afterDash.containsIgnoreCase ("oblique")
-                                             || afterDash.containsIgnoreCase ("italic")
-                                             || fn.endsWithIgnoreCase ("oblique")
-                                             || fn.endsWithIgnoreCase ("italic");
-
-                if (probablyBold == font.isBold()
-                     && probablyItalic == font.isItalic())
-                {
-                    fontName = i;
-                    needsItalicTransform = false;
-                    break;
-                }
-                else if (probablyBold && (! probablyItalic) && probablyBold == font.isBold())
-                {
-                    fontName = i;
-                    needsItalicTransform = true; // not ideal, so carry on in case we find a better one
-                }
-            }
-
-            if (needsItalicTransform)
-                renderingTransform.c = 0.15f;
-        }
-
+        NSString* fontName = juceStringToNS (font.getTypefaceStyle());
+        // Fonts style names on Cocoa Touch are unusual like "Arial-BoldMT"
+        // Font styles don't work when using Cocoa Touch
         fontRef = CGFontCreateWithFontName ((CFStringRef) fontName);
 
         if (fontRef == 0)
@@ -686,21 +652,11 @@ public:
         unitsToHeightScaleFactor = 1.0f / totalHeight;
         fontHeightToCGSizeFactor = CGFontGetUnitsPerEm (fontRef) / totalHeight;
 #else
-        nsFont = [NSFont fontWithName: juceStringToNS (font.getTypefaceName()) size: 1024];
-
-        if (font.isItalic())
-        {
-            NSFont* newFont = [[NSFontManager sharedFontManager] convertFont: nsFont
-                                                                 toHaveTrait: NSItalicFontMask];
-
-            if (newFont == nsFont)
-                needsItalicTransform = true; // couldn't find a proper italic version, so fake it with a transform..
-
-            nsFont = newFont;
-        }
-
-        if (font.isBold())
-            nsFont = [[NSFontManager sharedFontManager] convertFont: nsFont toHaveTrait: NSBoldFontMask];
+        NSDictionary* nsDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                juceStringToNS (font.getTypefaceName()), NSFontFamilyAttribute, 
+                                juceStringToNS (font.getTypefaceStyle()), NSFontFaceAttribute, nil];
+        NSFontDescriptor* nsFontDesc = [NSFontDescriptor fontDescriptorWithFontAttributes:nsDict];
+        nsFont = [NSFont fontWithDescriptor: nsFontDesc size: 1024];
 
         [nsFont retain];
 
@@ -709,12 +665,6 @@ public:
         ascent /= totalSize;
 
         pathTransform = AffineTransform::identity.scale (1.0f / totalSize, 1.0f / totalSize);
-
-        if (needsItalicTransform)
-        {
-            pathTransform = pathTransform.sheared (-0.15f, 0.0f);
-            renderingTransform.c = 0.15f;
-        }
 
       #if SUPPORT_ONLY_10_4_FONTS
         ATSFontRef atsFont = ATSFontFindFromName ((CFStringRef) [nsFont fontName], kATSOptionFlagsDefault);
@@ -1064,47 +1014,56 @@ private:
 
 StringArray Font::findAllTypefaceNames()
 {
-  StringArray names;
+    StringArray names;
   
-  JUCE_AUTORELEASEPOOL
+    JUCE_AUTORELEASEPOOL
   
 #if JUCE_IOS
-  NSArray* fonts = [UIFont familyNames];
+    NSArray* fonts = [UIFont familyNames];
 #else
-  NSArray* fonts = [[NSFontManager sharedFontManager] availableFontFamilies];
+    NSArray* fonts = [[NSFontManager sharedFontManager] availableFontFamilies];
 #endif
   
-  for (unsigned int i = 0; i < [fonts count]; ++i)
-      names.add (nsStringToJuce ((NSString*) [fonts objectAtIndex: i]));
+    for (unsigned int i = 0; i < [fonts count]; ++i)
+        names.add (nsStringToJuce ((NSString*) [fonts objectAtIndex: i]));
   
-  names.sort (true);
-  return names;
+    names.sort (true);
+    return names;
 }
 
 StringArray Font::findAllTypefaceStyles (const String& family)
 {
-  StringArray results;
+    // Check if we are dealing with a default family name
+    if (family.startsWithChar('<'))
+    {
+        // We must get the real family name to find the correct styles
+        const Font f(family, "Regular", 15.0f);
+        Typeface::Ptr typeface = Font::getDefaultTypefaceForFont (f);
+        const String actualFamily = typeface->getName();
+        return findAllTypefaceStyles(actualFamily);
+    }
+    StringArray results;
   
-  JUCE_AUTORELEASEPOOL
+    JUCE_AUTORELEASEPOOL
   
 #if JUCE_IOS
-  NSArray* styles = [UIFont fontNamesForFamilyName:juceStringToNS (family)];
+    NSArray* styles = [UIFont fontNamesForFamilyName:juceStringToNS (family)];
 #else
-  NSArray* styles = [[NSFontManager sharedFontManager] availableMembersOfFontFamily:juceStringToNS (family)];
+    NSArray* styles = [[NSFontManager sharedFontManager] availableMembersOfFontFamily:juceStringToNS (family)];
 #endif
   
-  for (unsigned int i = 0; i < [styles count]; ++i)
-  {
+    for (unsigned int i = 0; i < [styles count]; ++i)
+    {
 #if JUCE_IOS
-      // Fonts are returned in the form of "Arial-BoldMT"
-      results.add (nsStringToJuce ((NSString*) [styles objectAtIndex: i]));
+        // Fonts are returned in the form of "Arial-BoldMT"
+        results.add (nsStringToJuce ((NSString*) [styles objectAtIndex: i]));
 #else
-      NSArray* style = [styles objectAtIndex: i];
-      // Fonts at index 1 are returned in the form of "Bold"
-      results.add (nsStringToJuce ((NSString*) [style objectAtIndex: 1]));
+        NSArray* style = [styles objectAtIndex: i];
+        // Fonts at index 1 are returned in the form of "Bold"
+        results.add (nsStringToJuce ((NSString*) [style objectAtIndex: 1]));
 #endif
       
-  }
+    }
   
   return results;
 }
@@ -1150,7 +1109,7 @@ Typeface::Ptr Font::getDefaultTypefaceForFont (const Font& font)
     // Fonts style names on Cocoa Touch are unusual like "Arial-BoldMT"
     // No font will be found for the style of "Regular" so we must modfiy the style 
     #if JUCE_IOS && ! JUCE_CORETEXT_AVAILABLE
-    if (style  == "Regular")                                   style  = family;
+    if (style  == "Regular")                                   style  = faceName;
     #endif
     
     Font f (font);
